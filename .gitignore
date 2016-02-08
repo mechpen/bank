@@ -1,0 +1,6 @@
+*.o
+*.d
+*a.out
+*scratch*
+*cscope.out
+*TAGS
