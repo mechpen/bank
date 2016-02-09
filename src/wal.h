@@ -14,7 +14,7 @@ struct wal_record {
 	uint64_t dst_last_lsn;
 } __attribute__((packed));
 
-uint64_t wal_open(void);
+void open_and_replay_wal(void);
 void wal_get_entry(int32_t lsn, struct wal_record *record);
 
 uint64_t

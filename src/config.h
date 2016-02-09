@@ -16,6 +16,8 @@
 
 #define USER_HASH_BITS	       10
 
+#define MAX_HISTORY_RECORD     10
+
 extern char *config_root_db_dir;
 extern int config_wal_prealloc_size;
 extern int config_max_lsn_drift;

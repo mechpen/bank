@@ -9,7 +9,7 @@ CFLAGS += $(COPTS) $(DEBFLAGS)
 LINK_OPTS = -pthread
 
 BINS := bank
-bank_OBJS := bank.o accdb.o wal.o tcp_server.o handler.o user.o idle.o replay.o
+bank_OBJS := bank.o accdb.o wal.o tcp_server.o handler.o user.o idle.o
 OBJS := $(bank_OBJS)
 
 .PHONY: all clean

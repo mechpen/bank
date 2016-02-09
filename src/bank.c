@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <linux/limits.h>
 
+#include "wal.h"
 #include "user.h"
 #include "accdb.h"
 #include "config.h"
@@ -16,7 +17,6 @@ int config_wal_prealloc_size = WAL_PREALLOC_SIZE;
 int config_max_lsn_drift = MAX_LSN_DRIFT;
 int config_user_hash_bits = USER_HASH_BITS;
 
-extern void open_and_replay_wal(void);
 extern void start_idle_thread(void);
 extern void start_tcp_server(const char *addr_str, const char *port_str);
 
