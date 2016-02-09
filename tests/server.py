@@ -1,7 +1,12 @@
 import os
+import sys
 import time
 import shutil
 import subprocess
+
+no_server = False
+if len(sys.argv) > 1 and sys.argv[1] == "no_server":
+    no_server = True
 
 root_dir = os.path.realpath(__file__).rsplit("/", 2)[0]
 
@@ -15,6 +20,9 @@ server_process = None
 
 def start_server(remove_old=True, extra_args=None, log=None):
     global server_process
+
+    if no_server:
+        return
 
     if remove_old:
         shutil.rmtree(db_dir, ignore_errors=True)
@@ -34,6 +42,9 @@ def start_server(remove_old=True, extra_args=None, log=None):
     time.sleep(1)
 
 def stop_server(clean_all=False):
+    if no_server:
+        return
+
     server_process.terminate()
     if clean_all:
         shutil.rmtree(db_dir, ignore_errors=True)

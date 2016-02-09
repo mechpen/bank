@@ -54,4 +54,5 @@ class Client(Process):
             status = api.get_status(rep)
             if not status or status >= 300:
                 raise RuntimeError(req + rep)
-        self.log.flush()
+        if self.log:
+            self.log.flush()

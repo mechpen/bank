@@ -39,7 +39,7 @@
 #define reply(fd, fmt, args...) ({                     \
     char __buf[MAX_RES_LEN];                           \
     snprintf(__buf, sizeof(__buf), fmt, ##args);       \
-    send(fd, __buf, strlen(__buf), 0);                 \
+    send(fd, __buf, strlen(__buf), MSG_NOSIGNAL);      \
 })
 
 #endif

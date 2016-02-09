@@ -59,6 +59,12 @@ def test_functions():
     status = api.get_status(client2.recv())
     assert status == 400
 
+    for _ in range(100):
+        client = Client(server.addr, server.port, auto_open=False)
+        client.send(random_string(random.randrange(500)))
+        client.socket.close()
+
+    # also assert server is running
     client2.send(random_string(1024)+'\n')
     status = api.get_status(client2.recv())
     assert status == 400
