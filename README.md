@@ -4,7 +4,7 @@ To build:
 
     $ cd ~/bank && make
 
-To start the server.  By default the server listen at 127.0.0.1:7890.
+To start the server.  By default the server listens at 127.0.0.1:7890.
 
     $ cd ~/bank && src/bank &
 
