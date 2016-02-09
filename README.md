@@ -45,9 +45,14 @@ Server command options:
 
 ## Assumption for Durability
 
-Writing to a hard disk sector must be atomic.  A sector write either
-succeeded or did never happen.  Durability is implemented using WAL
-(write ahead lock).
+Durability is implemented using WAL (write ahead lock).  To ensure a
+consistent WAL, the disk IO must satisfy the following:
+
+  - Writing to a hard disk sector must be atomic.  A sector write
+    either succeeded or did never happen.
+
+  - Appending to a file must be sequential.  A later append cannot
+    write to disk before a former append does.
 
 ## Tests
 
@@ -68,7 +73,7 @@ are restored.
 ## Performance
 
 The bottleneck of the system is at appending to the WAL file, which
-depends on hard disk IO speed.  On the server it can get 1316.93
+depends on hard disk IO speed.  On the server it can get 1890.96
 transaction per second with default options.
 
 ## Future Improvements

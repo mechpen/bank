@@ -86,19 +86,17 @@ wal_transfer(uint64_t src_id, uint64_t src_amount, uint64_t src_last_lsn,
     lsn = wal_next_lsn++;
     if (lsn == 0)
         ERROR_EXIT("lsn overflow");
-
     pos = wal_pos(lsn);
     if (pos == wal_file_size) {
         ensure_fallocate(wal_fd, pos, config_wal_prealloc_size);
         wal_file_size += config_wal_prealloc_size;
         DBG("lsn %ld bumped wal file size to %ld", lsn, wal_file_size);
     }
-
     ensure_pwrite(wal_fd, &record, sizeof(record), pos);
-    ensure_fdatasync(wal_fd);
 
     ensure_pthread_mutex_unlock(&wal_mutex);
 
+    ensure_fdatasync(wal_fd);
     return lsn;
 }
 
