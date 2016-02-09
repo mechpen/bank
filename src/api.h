@@ -26,8 +26,8 @@
 #define HISTORY_NEW_ACC         "210 - AT %lu OPENED\n"
 #define HISTORY_DEPOSIT         "210 - AT %lu DEPOSITED %lu\n"
 #define HISTORY_WITHDRAW        "210 - AT %lu WITHDREW %lu\n"
-#define HISTORY_TRANSFER_FROM   "210 - AT %lu TRANSFERED %lu FROM %lu\n"
-#define HISTORY_TRANSFER_TO     "210 - AT %lu TRANSFERED %lu TO %lu\n"
+#define HISTORY_TRANSFER_FROM   "210 - AT %lu TRANSFERRED %lu FROM %lu\n"
+#define HISTORY_TRANSFER_TO     "210 - AT %lu TRANSFERRED %lu TO %lu\n"
 #define HISTORY_CURRENT         "210 - CURRENT %lu\n"
 #define MULTI_LINE_END          "210 - \n"
 
