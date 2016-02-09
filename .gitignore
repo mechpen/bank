@@ -1,6 +1,9 @@
+scratch/
+tests/db/
+tests/logs/
+__pycache__
 *.o
 *.d
 *a.out
-*scratch*
 *cscope.out
 *TAGS

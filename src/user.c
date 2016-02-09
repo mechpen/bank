@@ -9,7 +9,9 @@
 #include "helper.h"
 #include "user.h"
 
-#define hash_id(id) hash_64((uint64_t)(id), USER_HASH_BITS)
+extern int config_user_hash_bits;
+
+#define hash_id(id) hash_64((uint64_t)(id), config_user_hash_bits)
 
 struct user_table {
 	struct hlist_head head;
@@ -17,13 +19,24 @@ struct user_table {
 	pthread_cond_t cond;
 };
 
-static struct user_table user_table[1 << USER_HASH_BITS] = {
-	[0 ... ((1 << USER_HASH_BITS) - 1)]	= {
-		HLIST_HEAD_INIT,
-		PTHREAD_MUTEX_INITIALIZER,
-		PTHREAD_COND_INITIALIZER,
+static struct user_table *user_table;
+
+void user_init(void)
+{
+	int size = 1 << config_user_hash_bits;
+
+	user_table = (struct user_table *)calloc(sizeof(struct user_table), size);
+	for (int i = 0; i < size; i++) {
+		int ret;
+		struct user_table *entry = &user_table[i];
+
+		INIT_HLIST_HEAD(&entry->head);
+		if ((ret = pthread_mutex_init(&entry->mutex, NULL)) != 0)
+			ERROR_EXIT("pthread_mutex_init %s", strerror(ret));
+		if ((ret = pthread_cond_init(&entry->cond, NULL)) != 0)
+			ERROR_EXIT("pthread_cond_init %s", strerror(ret));
 	}
-};
+}
 
 static inline int find_user(uint64_t id, struct hlist_head *head)
 {
@@ -42,7 +55,7 @@ struct user *get_user(uint64_t id)
 	struct user_table *entry = &user_table[i];
 	struct user *user;
 
-	user = malloc(sizeof(*user));
+	user = (struct user *)malloc(sizeof(struct user));
 	if (user == NULL)
 		return NULL;
 

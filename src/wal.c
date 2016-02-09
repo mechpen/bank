@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 #include <linux/limits.h>
 
 #include "wal.h"
@@ -36,7 +37,8 @@
 #include "config.h"
 #include "log.h"
 
-extern char *bank_root_dir;
+extern char *config_root_db_dir;
+extern int config_wal_prealloc_size;
 
 struct wal_header {
 	uint64_t magic_version;
@@ -47,6 +49,7 @@ struct wal_header {
 uint64_t wal_next_lsn;
 
 static int wal_fd;
+static size_t wal_file_size;
 static pthread_mutex_t wal_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* lsn starts from 1 */
@@ -57,7 +60,7 @@ uint64_t
 wal_transfer(uint64_t src_id, uint64_t src_amount, uint64_t src_last_lsn,
 			 uint64_t dst_id, uint64_t dst_amount, uint64_t dst_last_lsn)
 {
-	uint64_t lsn;
+	uint64_t lsn, pos;
 	struct wal_record record;
 	struct timeval tv;
 
@@ -80,8 +83,16 @@ wal_transfer(uint64_t src_id, uint64_t src_amount, uint64_t src_last_lsn,
 	lsn = wal_next_lsn++;
 	if (lsn == 0)
 		ERROR_EXIT("lsn overflow");
-	ensure_pwrite(wal_fd, &record, sizeof(record), wal_pos(lsn));
-	ensure_fsync(wal_fd);  /* FIXME: move out of mutex ? */
+
+	pos = wal_pos(lsn);
+	if (pos == wal_file_size) {
+		ensure_fallocate(wal_fd, pos, config_wal_prealloc_size);
+		wal_file_size += config_wal_prealloc_size;
+		DBG("lsn %ld bumped wal file size to %ld", lsn, wal_file_size);
+	}
+
+	ensure_pwrite(wal_fd, &record, sizeof(record), pos);
+	ensure_fdatasync(wal_fd);
 
 	ensure_pthread_mutex_unlock(&wal_mutex);
 
@@ -103,14 +114,15 @@ static uint64_t wal_create(const char *path, int32_t start_lsn)
 		ERROR_EXIT("%s", strerror(errno));
 	wal_fd = ret;
 
+	ensure_fallocate(wal_fd, 0, config_wal_prealloc_size);
+	wal_file_size = config_wal_prealloc_size;
+
 	memset(&header, 0, sizeof(header));
 	header.magic_version = WAL_MAGIC_VERSION;
 	header.start_lsn = start_lsn;
 	ensure_pwrite(wal_fd, &header, sizeof(header), 0);
 
-	ret = fsync(wal_fd);
-	if (ret < 0)
-		ERROR_EXIT("%s", strerror(errno));
+	ensure_fsync(wal_fd);
 
 	return start_lsn;
 }
@@ -120,8 +132,9 @@ uint64_t wal_open(void)
 	int ret;
 	char path[PATH_MAX];
 	struct wal_header header;
+	struct stat stat;
 
-	ret = snprintf(path, PATH_MAX, "%s/%s", bank_root_dir, WAL_FILE_NAME);
+	ret = snprintf(path, PATH_MAX, "%s/%s", config_root_db_dir, WAL_FILE_NAME);
 	if (ret >= PATH_MAX)
 		ERROR_EXIT("wal path too long");
 
@@ -134,9 +147,15 @@ uint64_t wal_open(void)
 
 	ensure_pread(wal_fd, &header, sizeof(header), 0);
 	if (header.magic_version != WAL_MAGIC_VERSION)
-		ERROR_EXIT("Invalid wal magic version in %s", path);
+		ERROR_EXIT("invalid wal file magic version in %s", path);
 	if (header.start_lsn == 0)
-		ERROR_EXIT("Invalid wal start lsn in %s", path);
+		ERROR_EXIT("invalid wal file start lsn in %s", path);
+
+	if (fstat(wal_fd, &stat) < 0)
+		ERROR_EXIT("fstat %s", strerror(errno));
+	wal_file_size = stat.st_size;
+	if (wal_file_size % config_wal_prealloc_size != 0)
+		ERROR_EXIT("invalid wal file size %lu", wal_file_size);
 
 	return header.start_lsn;
 }

@@ -10,6 +10,7 @@ struct user {
 	uint64_t id;
 };
 
+void user_init(void);
 struct user *get_user(uint64_t id);
 void put_user(struct user *user);
 

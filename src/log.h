@@ -8,7 +8,7 @@
 extern int log_verbose;
 
 #define DBG(fmt, args...) ({                                \
-    if (verbose == 1) {                                     \
+    if (log_verbose == 1) {                                 \
         struct timeval tv;                                  \
         gettimeofday(&tv, NULL);                            \
         fprintf(stderr, "%ld.%02ld [dbg] %s: " fmt "\n",    \

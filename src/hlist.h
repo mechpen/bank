@@ -17,7 +17,7 @@ struct hlist_node {
 	struct hlist_node *next, **pprev;
 };
 
-#define HLIST_HEAD_INIT { .first = NULL }
+#define INIT_HLIST_HEAD(ptr) ((ptr)->first = NULL)
 
 static inline void INIT_HLIST_NODE(struct hlist_node *h)
 {

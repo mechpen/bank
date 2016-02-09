@@ -1,6 +1,6 @@
 SUBDIRS = src
 
-.PHONY: all clean test $(SUBDIRS)
+.PHONY: all clean tests $(SUBDIRS)
 
 all: $(SUBDIRS)
 
@@ -11,4 +11,4 @@ clean:
 	$(MAKE) TOPTARGET=clean
 
 test: all
-	cd test && python test_all.py
+	cd tests && python3 test_all.py && rm -rf db && rm -rf logs

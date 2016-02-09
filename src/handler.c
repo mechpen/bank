@@ -104,7 +104,8 @@ static void handle_transfer(int fd, uint64_t amount,
 	struct user *src_user, *dst_user;
 	struct accdb_record src_record, dst_record;
 
-	if (invalid_id(src_id) || invalid_id(dst_id) || amount < 0) {
+	if (invalid_id(src_id) || invalid_id(dst_id) ||
+		src_id == dst_id || amount < 0) {
 		reply(fd, REQUEST_ERROR);
 		return;
 	}

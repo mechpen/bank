@@ -19,14 +19,13 @@
 
 #define MAX_RES_LEN   200
 
-#define NEW_ACC_OK    "200 account number %lu\n"
-#define UPDATE_OK     "200 old amount %lu new amount %lu\n"
+#define NEW_ACC_OK    "200 - ACCOUNT NUMBER %lu\n"
+#define UPDATE_OK     "200 - OLD AMOUNT %lu NEW AMOUNT %lu\n"
 
-#define SERVER_ERROR  "500 Server Error\n"
-#define REQUEST_ERROR "400 Bad Request\n"
-#define INSUFF_ERROR  "410 Insufficient Money\n"
-#define OVERFL_ERROR  "420 Too Much Money\n"
-#define NO_ACC_ERROR  "430 Account Does NOT Exist\n"
+#define SERVER_ERROR  "500 - SERVER ERROR\n"
+#define REQUEST_ERROR "400 - BAD REQUEST\n"
+#define INSUFF_ERROR  "410 - INSUFFICIENT MONEY\n"
+#define OVERFL_ERROR  "420 - TOO MUCH MONEY\n"
 
 #define reply(fd, fmt, args...) ({                     \
 	char __buf[MAX_RES_LEN];		                   \

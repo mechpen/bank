@@ -6,7 +6,7 @@ endif
 COPTS += -Wall #-S
 CFLAGS += $(COPTS) $(DEBFLAGS)
 
-EXT_LIBS = -lpthread
+LINK_OPTS = -pthread
 
 BINS := bank
 bank_OBJS := bank.o accdb.o wal.o tcp_server.o handler.o user.o idle.o replay.o
@@ -17,7 +17,7 @@ OBJS := $(bank_OBJS)
 all: $(BINS)
 
 bank: $(bank_OBJS)
-	$(CC) $(EXT_LIBS) $^ -o $@
+	$(CC) $(LINK_OPTS) $^ -o $@
 
 clean:
 	rm -f $(BINS) *.o *.d

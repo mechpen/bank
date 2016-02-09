@@ -7,6 +7,7 @@
 #include "config.h"
 #include "log.h"
 
+extern int config_max_lsn_drift;
 extern uint64_t accdb_synced_lsn;
 extern uint64_t wal_next_lsn;
 
@@ -19,7 +20,7 @@ void *idle(void *arg)
 		if (lsn < accdb_synced_lsn)
 			ERROR_EXIT("wal lsn %lu < synced lsn %lu", lsn, accdb_synced_lsn);
 
-		if (lsn - accdb_synced_lsn >= MAX_LSN_DRIFT) {
+		if (lsn - accdb_synced_lsn >= config_max_lsn_drift) {
 			accdb_sync_lsn(lsn);
 			accdb_synced_lsn = lsn;
 		}

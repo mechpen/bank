@@ -33,7 +33,7 @@
 #include "config.h"
 #include "log.h"
 
-extern char *bank_root_dir;
+extern char *config_root_db_dir;
 
 struct accdb_header {
 	uint64_t magic_version;
@@ -55,6 +55,8 @@ static int accdb_fd;
 void accdb_get_account(uint64_t id, struct accdb_record *record)
 {
 	ensure_pread(accdb_fd, record, sizeof(*record), accdb_pos(id));
+	if (record->last_lsn == 0)
+		ERROR_EXIT("last_lsn of %lu is 0", id);
 }
 
 void accdb_set_account(uint64_t id, struct accdb_record *record)
@@ -104,7 +106,7 @@ void accdb_open(void)
 	static char path[PATH_MAX];
 	struct accdb_header header;
 
-	ret = snprintf(path, PATH_MAX, "%s/%s", bank_root_dir, ACCDB_FILE_NAME);
+	ret = snprintf(path, PATH_MAX, "%s/%s", config_root_db_dir, ACCDB_FILE_NAME);
 	if (ret >= PATH_MAX)
 		ERROR_EXIT("accdb path too long");
 
