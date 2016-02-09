@@ -1,3 +1,4 @@
+import time
 import random
 
 import api
@@ -90,12 +91,27 @@ def test_transaction(num_procs, num_trans, num_users):
         assert_user_amount(i+1, users[i])
     return num_procs * num_trans + num_users * 2
 
+def test_open_and_transaction(num_procs, num_users, con_users):
+    lsn = test_open(num_procs, num_users)
+    lsn += test_transaction(num_procs, num_users, con_users)
+    data.assert_lsn_id(lsn, num_procs*num_users+1)
+    return lsn
+
 log = server.log_dir + "con_server.log"
 server.start_server(extra_args=server_args, log=log)
 try:
-    lsn = test_open(10, 1000)
-    lsn += test_transaction(10, 1000, 3)
-    data.assert_lsn_id(lsn, 10*1000+1)
-    print("OK")
+    test_open_and_transaction(10, 1000, 3)
 finally:
     server.stop_server()
+
+log = server.log_dir + "con_server.log.1"
+server.start_server(log=log)
+try:
+    start = time.time()
+    lsn = test_open_and_transaction(10, 1000, 100)
+    dur = time.time() - start
+    print("%d transactions in %.2f seconds, averaging at %.2f tps" % (lsn, dur, lsn/dur))
+finally:
+    server.stop_server()
+
+print("OK")

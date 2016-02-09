@@ -23,10 +23,10 @@ static struct user_table *user_table;
 
 void user_init(void)
 {
-	int size = 1 << config_user_hash_bits;
+	int i, size = 1 << config_user_hash_bits;
 
 	user_table = (struct user_table *)calloc(sizeof(struct user_table), size);
-	for (int i = 0; i < size; i++) {
+	for (i = 0; i < size; i++) {
 		int ret;
 		struct user_table *entry = &user_table[i];
 

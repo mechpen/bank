@@ -1,6 +1,6 @@
-DEBUG = y
+DEBUG =
 ifeq ($(DEBUG),y)
-DEBFLAGS = -g -O0 -DDEBUG # "-O" is needed to expand inlines
+DEBFLAGS = -g -O0 -DDEBUG # "-O0" is needed to expand inlines
 endif
 
 COPTS += -Wall #-S

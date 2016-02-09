@@ -72,9 +72,7 @@ void accdb_set_max_id(uint64_t id)
 
 void accdb_sync_lsn(uint64_t lsn)
 {
-	if (fsync(accdb_fd) < 0)
-		ERROR_EXIT("%s", strerror(errno));
-
+	ensure_fsync(accdb_fd);
 	ensure_pwrite(accdb_fd, &lsn, sizeof(lsn),
 				  offsetof(struct accdb_header, synced_lsn));
 }
@@ -92,9 +90,7 @@ static void accdb_create(const char *path)
 	memset(&header, 0, sizeof(header));
 	header.magic_version = ACCDB_MAGIC_VERSION;
 	ensure_pwrite(accdb_fd, &header, sizeof(header), 0);
-
-	if (fsync(accdb_fd) < 0)
-		ERROR_EXIT("%s", strerror(errno));
+	ensure_fsync(accdb_fd);
 
 	accdb_synced_lsn = 0;
 	accdb_max_id = 0;
