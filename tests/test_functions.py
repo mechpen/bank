@@ -8,7 +8,7 @@ from client import Client
 def random_string(n):
     return ''.join(random.choice(string.printable) for _ in range(n))
 
-def test_function():
+def test_functions():
     log_base = server.log_dir + "fun_client.log"
     client1 = Client(server.addr, server.port, log=log_base+".1")
     client2 = Client(server.addr, server.port, log=log_base+".2")
@@ -65,7 +65,7 @@ def test_function():
 
 server.start_server(log=server.log_dir+"fun_server.log")
 try:
-    test_function()
+    test_functions()
     print("OK")
 finally:
     server.stop_server()
