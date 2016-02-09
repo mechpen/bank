@@ -6,8 +6,8 @@
 #include "hlist.h"
 
 struct user {
-	struct hlist_node node;
-	uint64_t id;
+    struct hlist_node node;
+    uint64_t id;
 };
 
 void user_init(void);

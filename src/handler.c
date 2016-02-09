@@ -175,7 +175,7 @@ static inline uint64_t get_last_lsn(const uint64_t id,
 }
 
 static inline const char *get_transfer_fmt(const uint64_t id,
-										   const struct wal_record *record) {
+                                           const struct wal_record *record) {
     if (id == record->src_id)
         return HISTORY_TRANSFER_TO;
     assert_same(id, record->dst_id, "id");
@@ -183,7 +183,7 @@ static inline const char *get_transfer_fmt(const uint64_t id,
 }
 
 static inline uint64_t get_transfer_pid(const uint64_t id,
-										const struct wal_record *record) {
+                                        const struct wal_record *record) {
     if (id == record->src_id)
         return record->dst_id;
     assert_same(id, record->dst_id, "id");
@@ -210,7 +210,7 @@ static void handle_history(int fd, uint64_t id,
         return;
     }
     accdb_get_account(id, &acc_record);
-	put_user(user);
+    put_user(user);
 
     reply(fd, HISTORY_CURRENT, acc_record.amount);
     lsn = acc_record.last_lsn;

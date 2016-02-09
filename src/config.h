@@ -1,7 +1,7 @@
 #ifndef _BANK_CONFIG_H
 #define _BANK_CONFIG_H
 
-#define ROOT_DB_DIR			   "."
+#define ROOT_DB_DIR            "."
 
 #define HDD_BLOCK_SIZE         4096
 
@@ -14,7 +14,7 @@
 
 #define MAX_LSN_DRIFT          10000
 
-#define USER_HASH_BITS	       10
+#define USER_HASH_BITS         10
 
 #define MAX_HISTORY_RECORD     10
 

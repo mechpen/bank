@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 struct accdb_record {
-	uint64_t amount;
-	uint64_t last_lsn;
+    uint64_t amount;
+    uint64_t last_lsn;
 } __attribute__((packed));
 
 void accdb_open(void);
