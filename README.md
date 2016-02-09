@@ -4,12 +4,12 @@ To build:
 
     $ cd ~/bank && make
 
-To start server.  By default server listen at 127.0.0.1:7890.
+To start the server.  By default the server listen at 127.0.0.1:7890.
 
     $ cd ~/bank && src/bank &
 
-Start a client session use `nc`.  Please note that lines start with
-"200" or "210" are server responses.
+Start a client session with `nc`.  Please note that lines starting
+with "200" or "210" are server responses.
 
     $ nc localhost 7890
     OPEN
@@ -45,7 +45,7 @@ Server command options:
         -v  verbose output
         -h  print this message and quit
 
-## Assumptions for Durability
+## Assumption for Durability
 
 Writing to a hard disk sector must be atomic.  A sector write either
 succeeded or did never happen.  Durability is implemented using WAL
@@ -64,19 +64,19 @@ The automated tests include:
   - concurrency test
 
 The durability test is done by starting the server with an older
-version of database file, then check that all missed transactions are
-restored.
+version of the database file, then check that all missed transactions
+are restored.
 
 ## Performance
 
 The bottleneck of the system is at appending to the WAL file, which
 depends on hard disk IO speed.  On the server it can get 1316.93
-transaction per second.
+transaction per second with default options.
 
 ## Future Improvements
 
   1. security -- currently no authentication nor authorization,
   2. asyncio -- bottleneck is not here, but asyncio is cool,
-  3. dynamically resizing hash table based on number of conflicts,
+  3. dynamically resizing user hash table based on number of conflicts,
   4. user session control -- timeout connection and etc,
   5. WAL rotation
