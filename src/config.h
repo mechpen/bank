@@ -7,7 +7,8 @@
 
 #define WAL_FILE_NAME          "wal"
 #define WAL_MAGIC_VERSION      0x0000000100766587
-#define WAL_PREALLOC_SIZE      4096 * HDD_BLOCK_SIZE
+#define WAL_PREALLOC_SIZE      (4096 * HDD_BLOCK_SIZE)
+#define WAL_SYNC_DELAY_NS      (1 * 1000 * 1000)    /* 1 ms */
 
 #define ACCDB_FILE_NAME        "accdb"
 #define ACCDB_MAGIC_VERSION    0x0000000100676765
@@ -20,6 +21,7 @@
 
 extern char *config_root_db_dir;
 extern int config_wal_prealloc_size;
+extern int config_wal_sync_delay_ns;
 extern int config_max_lsn_drift;
 extern int config_user_hash_bits;
 

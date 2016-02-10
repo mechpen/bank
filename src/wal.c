@@ -38,8 +38,6 @@
 #include "config.h"
 #include "log.h"
 
-extern char *config_root_db_dir;
-extern int config_wal_prealloc_size;
 extern uint64_t accdb_synced_lsn;
 extern uint64_t wal_next_lsn;
 
@@ -53,11 +51,46 @@ uint64_t wal_next_lsn;
 
 static int wal_fd;
 static size_t wal_file_size;
+static size_t wal_synced_lsn;
 static pthread_mutex_t wal_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t wal_cond = PTHREAD_COND_INITIALIZER;
 
 /* lsn starts from 1 */
 #define wal_pos(lsn)    \
     (((lsn) - 1) * sizeof(struct wal_record) + sizeof(struct wal_header))
+
+#define NS_PER_S  (1000 * 1000 * 1000)
+
+static inline void delayed_fsync(uint64_t delay_ns, uint64_t lsn,
+                                 pthread_mutex_t *pmutex)
+{
+    struct timespec ts;
+
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_nsec += delay_ns;
+    while (ts.tv_nsec >= NS_PER_S) {
+        ts.tv_nsec -= NS_PER_S;
+        ts.tv_sec += 1;
+    }
+
+    while (wal_synced_lsn < lsn) {
+        int ret = pthread_cond_timedwait(&wal_cond, pmutex, &ts);
+        if (ret == 0)
+            continue;
+        if (ret != ETIMEDOUT)
+            ERROR_EXIT("pthread_cond_timedwait %s", strerror(ret));
+		/* timeout may come instead of cond notify, so we need to
+		   re-check after timeout. */
+		if (wal_synced_lsn >= lsn)
+			break;
+        DBG("delayed_fsync lsn %ld next_lsn %ld synced_lsn %ld",
+            lsn, wal_next_lsn, wal_synced_lsn);
+        ensure_fdatasync(wal_fd);
+        wal_synced_lsn = wal_next_lsn - 1;
+        ensure_pthread_cond_broadcast(&wal_cond);
+        break;
+    }
+}
 
 uint64_t
 wal_transfer(uint64_t src_id, uint64_t src_amount, uint64_t src_last_lsn,
@@ -93,10 +126,10 @@ wal_transfer(uint64_t src_id, uint64_t src_amount, uint64_t src_last_lsn,
         DBG("lsn %ld bumped wal file size to %ld", lsn, wal_file_size);
     }
     ensure_pwrite(wal_fd, &record, sizeof(record), pos);
+    delayed_fsync(config_wal_sync_delay_ns, lsn, &wal_mutex);
 
     ensure_pthread_mutex_unlock(&wal_mutex);
 
-    ensure_fdatasync(wal_fd);
     return lsn;
 }
 

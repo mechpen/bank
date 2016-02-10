@@ -33,8 +33,6 @@
 #include "config.h"
 #include "log.h"
 
-extern char *config_root_db_dir;
-
 struct accdb_header {
     uint64_t magic_version;
     uint64_t synced_lsn;

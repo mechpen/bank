@@ -7,7 +7,6 @@
 #include "config.h"
 #include "log.h"
 
-extern int config_max_lsn_drift;
 extern uint64_t accdb_synced_lsn;
 extern uint64_t wal_next_lsn;
 

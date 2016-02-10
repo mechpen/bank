@@ -14,6 +14,7 @@ int log_verbose = 0;
 
 char *config_root_db_dir = ROOT_DB_DIR;
 int config_wal_prealloc_size = WAL_PREALLOC_SIZE;
+int config_wal_sync_delay_ns = WAL_SYNC_DELAY_NS;
 int config_max_lsn_drift = MAX_LSN_DRIFT;
 int config_user_hash_bits = USER_HASH_BITS;
 
@@ -24,12 +25,12 @@ static void usage(void)
 {
     fprintf(stderr,
             "Usage: bank [ -r root_dir ] [ -a addr ] [ -p port ] [ -v ] [ -h ]\n"
-            "            [ -s wal_block_size ] [ -d max_lsn_drift ]\n"
-            "            [ -b user_hash_bits ]\n\n"
+            "            [ -s wal_block_size ] [ -n wal_sync_delay_ns ]\n"
+            "            [ -d max_lsn_drift ] [ -b user_hash_bits ]\n\n"
             "    -r  set db root dir to <root_dir>, default is \".\"\n"
             "    -a  bind to address <addr>, default is \"127.0.0.1\"\n"
             "    -p  bind to port <port>, default is \"7890\"\n"
-            "    -s, -d, -b  don't use, testing only\n"
+            "    -s, -n, -d, -b  don't use, testing only\n"
             "    -v  verbose output\n"
             "    -h  print this message and quit\n\n");
     exit(1);
@@ -40,7 +41,7 @@ int main(int argc, char *argv[])
     int c;
     char *addr = "127.0.0.1", *port = "7890";
 
-    while ((c = getopt(argc, argv, "r:a:p:vhs:d:b:")) != -1) {
+    while ((c = getopt(argc, argv, "r:a:p:vhs:d:b:n:")) != -1) {
         switch (c) {
         case 'r':
             if (strlen(optarg) >= PATH_MAX)
@@ -61,6 +62,9 @@ int main(int argc, char *argv[])
             if (config_wal_prealloc_size % HDD_BLOCK_SIZE != 0)
                 usage();
             break;
+        case 'n':
+            config_wal_sync_delay_ns = atoi(optarg);
+            break;
         case 'd':
             config_max_lsn_drift = atoi(optarg);
             break;
@@ -80,6 +84,8 @@ int main(int argc, char *argv[])
         INFO("use root_db_dir %s", config_root_db_dir);
     if (config_wal_prealloc_size != WAL_PREALLOC_SIZE)
         INFO("use alternative wal_prealloc_size %d", config_wal_prealloc_size);
+    if (config_wal_sync_delay_ns != WAL_SYNC_DELAY_NS)
+        INFO("use alternative wal_sync_delay_ns %d", config_wal_sync_delay_ns);
     if (config_max_lsn_drift != MAX_LSN_DRIFT)
         INFO("use alternative max_lsn_drift %d", config_max_lsn_drift);
     if (config_user_hash_bits != USER_HASH_BITS)

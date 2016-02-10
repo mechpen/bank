@@ -9,8 +9,6 @@
 #include "helper.h"
 #include "user.h"
 
-extern int config_user_hash_bits;
-
 #define hash_id(id) hash_64((uint64_t)(id), config_user_hash_bits)
 
 struct user_table {
