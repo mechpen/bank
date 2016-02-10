@@ -72,9 +72,12 @@ are restored.
 
 ## Performance
 
-Disk IO is slow.  Batched (delayed) appending of WAL file improves
-system performance.  One the server, it can get 9989.16 transactions
-per second with default options.
+Disk IO is slow.  Batched (delayed) appending of WAL file is used to
+improve system throughput, at the expense of slightly slowing down
+each individual transaction.
+
+One the AWS server, the system throughput can reach 9989.16
+transactions per second with default options.
 
 ## Future Improvements
 
