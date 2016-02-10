@@ -39,7 +39,7 @@
 #include "log.h"
 
 extern uint64_t accdb_synced_lsn;
-extern uint64_t wal_next_lsn;
+extern uint64_t accdb_max_id;
 
 struct wal_header {
     uint64_t magic_version;
@@ -218,7 +218,11 @@ void open_and_replay_wal(void)
             acc_record.last_lsn = lsn;
             accdb_set_account(wal_record.dst_id, &acc_record);
         }
-    }
 
+        if (accdb_max_id < wal_record.src_id) {
+            accdb_max_id = wal_record.src_id;
+            accdb_set_max_id(wal_record.src_id);
+        }
+    }
     wal_next_lsn = lsn;
 }

@@ -13,25 +13,40 @@ def test_durability(repeat):
     client_log_base = server.log_dir + "dur_client_%d.log" % repeat
     server.start_server(extra_args=server_args, log=server_log_base+".1")
     try:
+        lsn = 0
+
         client = Client(server.addr, server.port, log=client_log_base+".1")
         repeat_deposit(client, repeat, 100)
+        lsn += repeat + 1
         saved = server.save_db()
+
         repeat_deposit(client, repeat, 100)
-        server.stop_server()
+        lsn += repeat
         client.log.close()
 
+        client = Client(server.addr, server.port, log=client_log_base+".1")
+        repeat_deposit(client, repeat, 200)
+        lsn += repeat + 1
+        client.log.close()
+
+        server.stop_server()
         server.restore_db(saved)
         server.start_server(extra_args=server_args, log=server_log_base+".2", remove_old=False)
+
         client = Client(server.addr, server.port, log=client_log_base+".2", auto_open=False)
         client.id = 1
         _, _, new = client.deposit(0)
-        client.log.close()
         assert new == repeat * 200
+        client.id = 2
+        _, _, new = client.deposit(0)
+        assert new == repeat * 200
+        lsn += 2
 
-        data.assert_lsn_id(2*repeat+2, 1)
+        client.log.close()
+        data.assert_lsn_id(lsn, 2)
     finally:
         server.stop_server()
 
-test_durability(10)
-test_durability(1000)
+test_durability(2)
+test_durability(200)
 print("OK")
