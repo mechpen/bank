@@ -6,7 +6,7 @@ def repeat_deposit(client, repeat, amount):
     for i in range(repeat):
         client.deposit(amount)
 
-server_args = ["-s", "4096", "-v", "-d", "100"]
+server_args = ["-s", "4096", "-v", "-d", "100", "-n", "0"]
 
 def test_durability(repeat):
     server_log_base = server.log_dir + "dur_server_%d.log" % repeat

@@ -17,9 +17,10 @@ addr = "127.0.0.1"
 port = 7890
 
 server_process = None
+server_log = None
 
 def start_server(remove_old=True, extra_args=None, log=None):
-    global server_process
+    global server_process, server_log
 
     if no_server:
         return
@@ -31,13 +32,13 @@ def start_server(remove_old=True, extra_args=None, log=None):
 
     if not log:
         log = "/dev/null"
-    log = open(log, 'w')
+    server_log = open(log, 'w')
 
     cmd = [exe_path, '-r', db_dir, '-a', addr, '-p', str(port)]
     if extra_args:
         cmd += extra_args
     print(" ".join(cmd))
-    server_process = subprocess.Popen(cmd, stdout=log, stderr=log)
+    server_process = subprocess.Popen(cmd, stdout=server_log, stderr=server_log)
 
     time.sleep(1)
 
@@ -46,6 +47,7 @@ def stop_server(clean_all=False):
         return
 
     server_process.terminate()
+    server_log.flush()
     if clean_all:
         shutil.rmtree(db_dir, ignore_errors=True)
 

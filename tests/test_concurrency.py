@@ -8,8 +8,6 @@ from client import Client
 
 random.seed(1)
 
-server_args = ["-s", "4096", "-b", "1", "-d", "100", "-v"]
-
 def execute_plan(name, plan):
     client_log_base = server.log_dir + "con_client_%s.log" % name
     clients = []
@@ -91,27 +89,40 @@ def test_transaction(num_procs, num_trans, num_users):
         assert_user_amount(i+1, users[i])
     return num_procs * num_trans + num_users * 2
 
-def test_open_and_transaction(num_procs, num_users, con_users):
-    lsn = test_open(num_procs, num_users)
-    lsn += test_transaction(num_procs, num_users, con_users)
-    data.assert_lsn_id(lsn, num_procs*num_users+1)
-    return lsn
+def test_concurrency():
+    num_procs = 100
+    num_opens = 100
+    num_trans = 1000
+    num_users = 3
 
-log = server.log_dir + "con_server.log"
-server.start_server(extra_args=server_args, log=log)
-try:
-    test_open_and_transaction(10, 1000, 3)
-finally:
-    server.stop_server()
+    log = server.log_dir + "con_server.log"
+    server_args = ["-s", "4096", "-b", "1", "-d", "100", "-v"]
+    server.start_server(extra_args=server_args, log=log)
+    try:
+        lsn = test_open(num_procs, num_opens)
+        lsn += test_transaction(num_procs, num_trans, num_users)
+        data.assert_lsn_id(lsn, num_procs*num_opens+1)
+    finally:
+        server.stop_server()
 
-log = server.log_dir + "con_server.log.1"
-server.start_server(log=log)
-try:
-    start = time.time()
-    lsn = test_open_and_transaction(10, 1000, 100)
-    dur = time.time() - start
-    print("%d transactions in %.2f seconds, averaging at %.2f tps" % (lsn, dur, lsn/dur))
-finally:
-    server.stop_server()
+def test_performance():
+    num_users = 100
+    num_procs = 100
+    num_trans = 1000
+
+    log = server.log_dir + "con_server.log.1"
+    server.start_server(log=log)
+    try:
+        start = time.time()
+        lsn = test_open(1, num_users)
+        lsn += test_transaction(num_procs, num_trans, num_users)
+        data.assert_lsn_id(lsn, num_users+1)
+        dur = time.time() - start
+        print("%d transactions in %.2f seconds, averaging at %.2f tps" % (lsn, dur, lsn/dur))
+    finally:
+        server.stop_server()
+
+test_concurrency()
+test_performance()
 
 print("OK")
