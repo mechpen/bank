@@ -72,14 +72,14 @@ are restored.
 
 ## Performance
 
-The bottleneck of the system is at appending to the WAL file, which
-depends on hard disk IO speed.  On the server it can get 1890.96
-transaction per second with default options.
+Disk IO is slow.  Batched (delayed) appending of WAL file improves
+system performance.  One the server, it can get 9989.16 transactions
+per second with default options.
 
 ## Future Improvements
 
   1. security -- currently no authentication nor authorization,
-  2. asyncio -- bottleneck is not here, but asyncio is cool,
+  2. asyncio
   3. dynamically resizing user hash table based on number of conflicts,
   4. user session control -- timeout connection and etc,
   5. WAL rotation
