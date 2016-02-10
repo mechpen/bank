@@ -15,6 +15,7 @@ static void handle_new_acc(int fd, uint64_t UNUSED(a1),
                            uint64_t UNUSED(a2), uint64_t UNUSED(a3))
 {
     uint64_t id;
+    struct user *user;
     struct accdb_record record;
 
     ensure_pthread_mutex_lock(&new_acc_mutex);
@@ -22,14 +23,23 @@ static void handle_new_acc(int fd, uint64_t UNUSED(a1),
     id = accdb_max_id + 1;
     if (id == 0)
         ERROR_EXIT("id overflow");
-    record.amount = 0;
-    record.last_lsn = wal_update(id, record.amount, 0);
-    accdb_set_account(id, &record);
-    accdb_set_max_id(id);
+
+    user = get_user(id);
+    if (user == NULL) {
+        ensure_pthread_mutex_unlock(&new_acc_mutex);
+        reply(fd, SERVER_ERROR);
+        return;
+    }
     accdb_max_id = id;
 
     ensure_pthread_mutex_unlock(&new_acc_mutex);
 
+    record.amount = 0;
+    record.last_lsn = wal_update(id, record.amount, 0);
+    accdb_set_account(id, &record);
+    accdb_set_max_id(id);
+
+    put_user(user);
     reply(fd, NEW_ACC_OK, id);
 }
 
