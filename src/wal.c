@@ -79,10 +79,10 @@ static inline void delayed_fsync(uint64_t delay_ns, uint64_t lsn,
             continue;
         if (ret != ETIMEDOUT)
             ERROR_EXIT("pthread_cond_timedwait %s", strerror(ret));
-		/* timeout may come instead of cond notify, so we need to
-		   re-check after timeout. */
-		if (wal_synced_lsn >= lsn)
-			break;
+        /* timeout may come instead of cond notify, so we need to
+           re-check after timeout. */
+        if (wal_synced_lsn >= lsn)
+            break;
         DBG("delayed_fsync lsn %ld next_lsn %ld synced_lsn %ld",
             lsn, wal_next_lsn, wal_synced_lsn);
         ensure_fdatasync(wal_fd);
