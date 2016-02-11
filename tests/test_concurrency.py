@@ -90,7 +90,7 @@ def test_transaction(num_procs, num_trans, num_users):
     return num_procs * num_trans + num_users * 2
 
 def test_concurrency():
-    num_procs = 100
+    num_procs = 10
     num_opens = 100
     num_trans = 1000
     num_users = 3
