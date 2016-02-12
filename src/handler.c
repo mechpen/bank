@@ -130,6 +130,8 @@ static void handle_transfer(int fd, uint64_t amount,
         src_user = get_user(src_id);
     }
     if (src_user == NULL || dst_user == NULL) {
+        put_user(src_user);
+        put_user(dst_user);
         reply(fd, SERVER_ERROR);
         return;
     }

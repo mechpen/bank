@@ -73,8 +73,14 @@ struct user *get_user(uint64_t id)
 
 void put_user(struct user *user)
 {
-    uint64_t i = hash_id(user->id);
-    struct user_table *entry = &user_table[i];
+    uint64_t i;
+    struct user_table *entry;
+
+    if (user == NULL)
+        return;
+
+    i = hash_id(user->id);
+    entry = &user_table[i];
 
     ensure_pthread_mutex_lock(&entry->mutex);
 
