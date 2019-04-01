@@ -45,7 +45,7 @@ Server command options:
 
 ## Assumption for Durability
 
-Durability is implemented using WAL (write ahead lock).  To ensure a
+Durability is implemented using WAL (write ahead log).  To ensure a
 consistent WAL, the disk IO must satisfy the following:
 
   - Writing to a hard disk sector must be atomic.  A sector write
